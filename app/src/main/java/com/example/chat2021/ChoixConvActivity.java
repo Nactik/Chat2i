@@ -4,7 +4,6 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -14,6 +13,7 @@ public class ChoixConvActivity extends AppCompatActivity {
     private static final String CAT = "LE4-SI";
     APIInterface apiService;
     String hash;
+    private ListConversation conversations;
 
 
     @Override
@@ -38,8 +38,6 @@ public class ChoixConvActivity extends AppCompatActivity {
                 call.cancel();
             }
         });
-
-
     }
 
     @Override

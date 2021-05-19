@@ -11,7 +11,6 @@ public class PrefsActivity extends PreferenceActivity {
         super.onCreate(savedInstanceState);
 
         // TODO : utiliser des fragments
-        //noinspection deprecation
         addPreferencesFromResource(R.xml.preferences);
     }
 }

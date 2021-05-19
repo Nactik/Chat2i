@@ -42,7 +42,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     CheckBox cbRemember;
     Button btnOK;
     SharedPreferences.Editor editor;
-    private final String CAT = "LE4-SI";
 
     class JSONAsyncTask extends AsyncTask<String, Void, String> {
         // Params, Progress, Result
@@ -50,7 +49,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            Log.i(LoginActivity.this.CAT,"onPreExecute");
+            Log.i(Utils.CAT,"onPreExecute");
         }
 
         @Override
@@ -59,11 +58,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             // Lors de l'appel, on fournit les arguments à la suite, séparés par des virgules
             // On récupère ces arguments dans un tableau
             // pas d'interaction avec l'UI Thread ici
-            Log.i(LoginActivity.this.CAT,"doInBackground");
-            Log.i(LoginActivity.this.CAT,qs[0]);
-            Log.i(LoginActivity.this.CAT,qs[1]);
-            String result = requete(qs[0], qs[1]);
-            Log.i(LoginActivity.this.CAT,result);
+            Log.i(Utils.CAT,"doInBackground");
+            Log.i(Utils.CAT,qs[0]);
+            Log.i(Utils.CAT,qs[1]);
+            String result = Utils.requete(qs[0], qs[1]);
+            Log.i(Utils.CAT,result);
             String hash = "";
             //String hash="4e28dafe87d65cca1482d21e76c61a06";
 
@@ -74,28 +73,28 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 JSONObject obR = new JSONObject(result);
                 hash = obR.getString("hash");
 
+                /*
+                    String res = "{\"promo\":\"2020-2021\",\"enseignants\":[{\"prenom\":\"Mohamed\",\"nom\":\"Boukadir\"},{\"prenom\":\"Thomas\",\"nom\":\"Bourdeaud'huy\"}]}";
+                    JSONObject ob = new JSONObject(res);
+                    String promo = ob.getString("promo");
+                    JSONArray profs = ob.getJSONArray("enseignants");
+                    JSONObject tom = profs.getJSONObject(1);
+                    String prenom = tom.getString("prenom");
+                    Log.i(Utils.CAT,"promo:" + promo + " prenom:" + prenom);
 
-                String res = "{\"promo\":\"2020-2021\",\"enseignants\":[{\"prenom\":\"Mohamed\",\"nom\":\"Boukadir\"},{\"prenom\":\"Thomas\",\"nom\":\"Bourdeaud'huy\"}]}";
-                JSONObject ob = new JSONObject(res);
-                String promo = ob.getString("promo");
-                JSONArray profs = ob.getJSONArray("enseignants");
-                JSONObject tom = profs.getJSONObject(1);
-                String prenom = tom.getString("prenom");
-                Log.i(LoginActivity.this.CAT,"promo:" + promo + " prenom:" + prenom);
+                    Gson gson = new GsonBuilder()
+                            .serializeNulls()
+                            .disableHtmlEscaping()
+                            .setPrettyPrinting()
+                            .create();
 
-                Gson gson = new GsonBuilder()
-                        .serializeNulls()
-                        .disableHtmlEscaping()
-                        .setPrettyPrinting()
-                        .create();
+                    String res2 = gson.toJson(ob);
+                    Log.i(Utils.CAT,"chaine recue:" + res);
+                    Log.i(Utils.CAT,"chaine avec gson:" + res2);
 
-                String res2 = gson.toJson(ob);
-                Log.i(LoginActivity.this.CAT,"chaine recue:" + res);
-                Log.i(LoginActivity.this.CAT,"chaine avec gson:" + res2);
-
-                Promo unePromo = gson.fromJson(res,Promo.class);
-                Log.i(LoginActivity.this.CAT,unePromo.toString());
-
+                    Promo unePromo = gson.fromJson(res,Promo.class);
+                    Log.i(Utils.CAT,unePromo.toString());
+                */
 
 
             } catch (JSONException e) {
@@ -105,9 +104,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
 
         protected void onPostExecute(String hash) {
-            Log.i(LoginActivity.this.CAT,"onPostExecute");
-            Log.i(LoginActivity.this.CAT,hash);
-            LoginActivity.this.alerter(hash);
+            Log.i(Utils.CAT,"onPostExecute");
+            Log.i(Utils.CAT,hash);
+            Utils.alerter(LoginActivity.this, hash);
 
 
             Intent iVersChoixConv = new Intent(LoginActivity.this,ChoixConvActivity.class);
@@ -122,8 +121,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
         sp = PreferenceManager.getDefaultSharedPreferences(this);
         editor = sp.edit();
+
         edtLogin = findViewById(R.id.login_edtLogin);
         edtPasse = findViewById(R.id.login_edtPasse);
         cbRemember = findViewById(R.id.login_cbRemember);
@@ -135,7 +136,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onStart() {
         super.onStart();
-        // TODO: Au (re)chargement de l'activité,
+
         // Lire les préférences partagées
         if (sp.getBoolean("remember",false)) {
             // et remplir (si nécessaire) les champs pseudo, passe, case à cocher
@@ -145,19 +146,18 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
 
         // Vérifier l'état du réseau
-        if (verifReseau()) {
+        if (Utils.verifReseau(LoginActivity.this)) {
             btnOK.setEnabled(true); // activation du bouton
         } else {
             btnOK.setEnabled(false); // désactivation du bouton
         }
     }
 
-
     @Override
     public void onClick(View v) {
         // Lors de l'appui sur le bouton OK
         // si case est cochée, enregistrer les données dans les préférences
-        alerter("click sur OK");
+        Utils.alerter(LoginActivity.this, "click sur OK");
         if (cbRemember.isChecked()) {
             editor.putBoolean("remember",true);
             editor.putString("login", edtLogin.getText().toString());
@@ -176,8 +176,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     }
 
-
-
     // Afficher les éléments du menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -186,116 +184,21 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         return true;
     }
 
-    private void alerter(String s) {
-        Log.i(CAT,s);
-        Toast t = Toast.makeText(this,s,Toast.LENGTH_SHORT);
-        t.show();
-    }
-
     // Gestionnaire d'événement pour le menu
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings :
-                alerter("Préférences");
+                Utils.alerter(LoginActivity.this, "Préférences");
                 // Changer d'activité pour afficher PrefsActivity
                 Intent change2Prefs = new Intent(this,PrefsActivity.class);
                 startActivity(change2Prefs);
                 break;
             case R.id.action_account :
-                alerter("Compte");
+                Utils.alerter(LoginActivity.this, "Compte");
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
-
-    public boolean verifReseau()
-    {
-        // On vérifie si le réseau est disponible,
-        // si oui on change le statut du bouton de connexion
-        ConnectivityManager cnMngr = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cnMngr.getActiveNetworkInfo();
-
-        String sType = "Aucun réseau détecté";
-        Boolean bStatut = false;
-        if (netInfo != null)
-        {
-
-            NetworkInfo.State netState = netInfo.getState();
-
-            if (netState.compareTo(NetworkInfo.State.CONNECTED) == 0)
-            {
-                bStatut = true;
-                int netType= netInfo.getType();
-                switch (netType)
-                {
-                    case ConnectivityManager.TYPE_MOBILE :
-                        sType = "Réseau mobile détecté"; break;
-                    case ConnectivityManager.TYPE_WIFI :
-                        sType = "Réseau wifi détecté"; break;
-                }
-
-            }
-        }
-
-        alerter(sType);
-        return bStatut;
-    }
-
-    public String requete(String urlData, String qs) {
-        DataOutputStream dataout = null; // new:POST
-        if (qs != null)
-        {
-            try {
-                URL url = new URL(urlData); // new:POST
-                Log.i(CAT,"url utilisée : " + url.toString());
-                HttpURLConnection urlConnection = null;
-                urlConnection = (HttpURLConnection) url.openConnection();
-
-                // new:POST
-                urlConnection.setRequestMethod("POST");
-                urlConnection.setDoOutput(true);
-                urlConnection.setDoInput(true);
-                urlConnection.setUseCaches(false);
-                urlConnection.setAllowUserInteraction(false);
-                urlConnection.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
-                dataout = new DataOutputStream(urlConnection.getOutputStream());
-                dataout.writeBytes(qs);
-                // new:POST
-
-                InputStream in = null;
-                in = new BufferedInputStream(urlConnection.getInputStream());
-                String txtReponse = convertStreamToString(in);
-                urlConnection.disconnect();
-                return txtReponse;
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        }
-
-        return "";
-    }
-
-    private String convertStreamToString(InputStream in) throws IOException {
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-            StringBuilder sb = new StringBuilder();
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
-            }
-            return sb.toString();
-        }finally {
-            try {
-                in.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
 
 }
