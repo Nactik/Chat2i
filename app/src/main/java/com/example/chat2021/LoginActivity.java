@@ -189,13 +189,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings :
-                Utils.alerter(LoginActivity.this, "Préférences");
                 // Changer d'activité pour afficher PrefsActivity
                 Intent change2Prefs = new Intent(this,PrefsActivity.class);
                 startActivity(change2Prefs);
                 break;
             case R.id.action_account :
-                Utils.alerter(LoginActivity.this, "Compte");
                 break;
         }
         return super.onOptionsItemSelected(item);
