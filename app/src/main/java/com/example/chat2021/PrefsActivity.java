@@ -2,6 +2,7 @@ package com.example.chat2021;
 
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+
 import androidx.annotation.Nullable;
 
 public class PrefsActivity extends PreferenceActivity {

@@ -16,11 +16,10 @@
         android:textColor="@color/blanc"
         android:textSize="12pt" />
 
-    <Spinner
-        android:id="@+id/choixConversation_choixConv"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvConv"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/blanc" />
+        android:layout_height="match_parent" />
 
     <Button
         android:id="@+id/choixConversation_btnOK"
