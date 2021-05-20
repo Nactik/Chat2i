@@ -1,0 +1,93 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/LinearLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_marginTop="30dp"
+        android:id="@+id/login_titre2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:text="@string/titre"
+        android:textSize="30dp"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/login_edtLogin2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="75dp"
+        android:layout_marginRight="30dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Entrez votre pseudo" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_gravity="center"
+        android:id="@+id/login_edtPasse2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Entrez votre mot de passe" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="30dp">
+
+        <TextView
+            android:id="@+id/login_labelRemember2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/remember"
+            />
+
+        <CheckBox
+            android:id="@+id/login_cbRemember2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            />
+
+    </LinearLayout>
+
+    <Button
+        android:layout_gravity="right"
+        android:id="@+id/login_btnOK2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:text="@string/ok"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="30dp"/>
+
+    <TextView
+        android:id="@+id/login_progressText2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="" />
+
+    <ProgressBar
+        android:id="@+id/login_progressBar2"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="invisible" />
+
+</LinearLayout>

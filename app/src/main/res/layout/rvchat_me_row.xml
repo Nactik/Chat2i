@@ -12,7 +12,7 @@
         android:id="@+id/authorNameMe"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         android:gravity="center|right"
         android:text="Me"
         android:layout_marginBottom="5dp"/>
@@ -22,7 +22,7 @@
         android:layout_gravity="right"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         android:background="@drawable/bg_personal_message"
         android:gravity="center|left"
         android:minWidth="190dp"

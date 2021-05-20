@@ -17,6 +17,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -37,8 +38,8 @@ import java.net.URL;
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
     SharedPreferences sp;
-    EditText edtLogin;
-    EditText edtPasse;
+    TextInputLayout edtLogin;
+    TextInputLayout edtPasse;
     CheckBox cbRemember;
     Button btnOK;
     SharedPreferences.Editor editor;
@@ -120,15 +121,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_login2);
 
         sp = PreferenceManager.getDefaultSharedPreferences(this);
         editor = sp.edit();
 
-        edtLogin = findViewById(R.id.login_edtLogin);
-        edtPasse = findViewById(R.id.login_edtPasse);
-        cbRemember = findViewById(R.id.login_cbRemember);
-        btnOK = findViewById(R.id.login_btnOK);
+        edtLogin = findViewById(R.id.login_edtLogin2);
+        edtPasse = findViewById(R.id.login_edtPasse2);
+        cbRemember = findViewById(R.id.login_cbRemember2);
+        btnOK = findViewById(R.id.login_btnOK2);
 
         btnOK.setOnClickListener(this);
     }
@@ -141,8 +142,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         if (sp.getBoolean("remember",false)) {
             // et remplir (si nécessaire) les champs pseudo, passe, case à cocher
             cbRemember.setChecked(true);
-            edtLogin.setText(sp.getString("login",""));
-            edtPasse.setText(sp.getString("passe",""));
+            edtLogin.getEditText().setText(sp.getString("login",""));
+            edtPasse.getEditText().setText(sp.getString("passe",""));
         }
 
         // Vérifier l'état du réseau
@@ -160,8 +161,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         Utils.alerter(LoginActivity.this, "click sur OK");
         if (cbRemember.isChecked()) {
             editor.putBoolean("remember",true);
-            editor.putString("login", edtLogin.getText().toString());
-            editor.putString("passe", edtPasse.getText().toString());
+            editor.putString("login", edtLogin.getEditText().getText().toString());
+            editor.putString("passe", edtPasse.getEditText().getText().toString());
             editor.commit();
         } else {
             editor.clear();
@@ -171,8 +172,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         // On envoie une requete HTTP
         JSONAsyncTask jsonT = new JSONAsyncTask();
         jsonT.execute(sp.getString("urlData","http://tomnab.fr/chat-api/")+"authenticate",
-                        "user=" + edtLogin.getText().toString()
-                        + "&password=" + edtPasse.getText().toString());
+                        "user=" + edtLogin.getEditText().getText().toString()
+                        + "&password=" + edtPasse.getEditText().getText().toString());
 
     }
 
