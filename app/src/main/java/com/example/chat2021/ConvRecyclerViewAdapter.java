@@ -6,10 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.List;
 
 
 public class ConvRecyclerViewAdapter extends RecyclerView.Adapter<ConvRecyclerViewAdapter.ViewHolder> {
@@ -52,7 +49,7 @@ public class ConvRecyclerViewAdapter extends RecyclerView.Adapter<ConvRecyclerVi
 
         ViewHolder(View itemView) {
             super(itemView);
-            myTextView = itemView.findViewById(R.id.convName);
+            myTextView = itemView.findViewById(R.id.chatContent);
             itemView.setOnClickListener(this);
         }
 
@@ -64,8 +61,12 @@ public class ConvRecyclerViewAdapter extends RecyclerView.Adapter<ConvRecyclerVi
     }
 
     // convenience method for getting data at click position
-    String getItem(int position) {
+    String getId(int position) {
         return mData.conversations.get(position).id;
+    }
+
+    String getTheme(int position){
+        return mData.conversations.get(position).theme;
     }
 
     // allows clicks events to be caught

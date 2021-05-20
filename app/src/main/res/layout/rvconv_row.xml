@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Small Text"
-        android:id="@+id/convName"
+        android:id="@+id/chatContent"
         android:layout_marginLeft="10dp"
         android:gravity="end" />
 
