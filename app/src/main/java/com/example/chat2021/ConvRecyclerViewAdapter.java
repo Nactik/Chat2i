@@ -58,14 +58,14 @@ public class ConvRecyclerViewAdapter extends RecyclerView.Adapter<ConvRecyclerVi
 
         @Override
         public void onClick(View view) {
-            if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
+            if (mClickListener != null)
+                mClickListener.onItemClick(view, getAdapterPosition());
         }
     }
 
     // convenience method for getting data at click position
-    String getItem(int id) {
-        //return mData.get(id); //TODO : ?????
-        return "";
+    String getItem(int position) {
+        return mData.conversations.get(position).id;
     }
 
     // allows clicks events to be caught

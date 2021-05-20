@@ -3,6 +3,7 @@ package com.example.chat2021;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Spinner;
 
 import androidx.annotation.Nullable;
@@ -14,7 +15,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ChoixConvActivity extends AppCompatActivity {
+public class ChoixConvActivity extends AppCompatActivity implements ConvRecyclerViewAdapter.ItemClickListener{
 
     private static final String CAT = "LE4-SI";
     APIInterface apiService;
@@ -45,7 +46,7 @@ public class ChoixConvActivity extends AppCompatActivity {
 
                 adapter = new ConvRecyclerViewAdapter(ChoixConvActivity.this, lc);
                 rv.setLayoutManager(new LinearLayoutManager(ChoixConvActivity.this));
-//                adapter.setClickListener(this);
+                adapter.setClickListener(ChoixConvActivity.this);
                 rv.setAdapter(adapter);
 
             }
@@ -60,5 +61,10 @@ public class ChoixConvActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+    }
+
+    @Override
+    public void onItemClick(View view, int position) {
+        Utils.alerter(ChoixConvActivity.this,  "You clicked " + adapter.getItem(position) + " on row number " + position);
     }
 }
