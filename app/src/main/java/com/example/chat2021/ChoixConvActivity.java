@@ -1,5 +1,6 @@
 package com.example.chat2021;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Spinner;
@@ -42,7 +43,10 @@ public class ChoixConvActivity extends AppCompatActivity {
                 ListConversation lc = response.body();
                 Log.i(CAT,lc.toString());
 
-                adapter = new ConvRecyclerViewAdapter(this, lc);
+                adapter = new ConvRecyclerViewAdapter(ChoixConvActivity.this, lc);
+                rv.setLayoutManager(new LinearLayoutManager(ChoixConvActivity.this));
+//                adapter.setClickListener(this);
+                rv.setAdapter(adapter);
 
             }
 
