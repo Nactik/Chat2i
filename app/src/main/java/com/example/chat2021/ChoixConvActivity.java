@@ -74,6 +74,10 @@ public class ChoixConvActivity extends AppCompatActivity implements ConvRecycler
         };
     }
 
+    /**
+     * Gère les erreurs
+     * @return l'erreur recu
+     */
     private Response.ErrorListener createMyReqErrorListener() {
         return error -> Utils.alerter(ChoixConvActivity.this, "Erreur lors de la récupération des conversations" );
     }

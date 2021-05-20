@@ -36,12 +36,11 @@ import java.net.URL;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
-    SharedPreferences sp;
-    EditText edtLogin;
-    EditText edtPasse;
-    CheckBox cbRemember;
-    Button btnOK;
-    SharedPreferences.Editor editor;
+    private SharedPreferences preferences;
+    private EditText edtLogin;
+    private EditText edtPasse;
+    private CheckBox cbRemember;
+    private Button btnOK;
 
     class JSONAsyncTask extends AsyncTask<String, Void, String> {
         // Params, Progress, Result
@@ -122,8 +121,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        sp = PreferenceManager.getDefaultSharedPreferences(this);
-        editor = sp.edit();
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         edtLogin = findViewById(R.id.login_edtLogin);
         edtPasse = findViewById(R.id.login_edtPasse);
@@ -137,12 +135,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onStart() {
         super.onStart();
 
-        // Lire les préférences partagées
-        if (sp.getBoolean("remember",false)) {
-            // et remplir (si nécessaire) les champs pseudo, passe, case à cocher
-            cbRemember.setChecked(true);
-            edtLogin.setText(sp.getString("login",""));
-            edtPasse.setText(sp.getString("passe",""));
+        if (this.preferences.getBoolean("remember",false)) {
+            this.cbRemember.setChecked(true);
+            this.edtLogin.setText(this.preferences.getString("login",""));
+            this.edtPasse.setText(this.preferences.getString("passe",""));
         }
 
         // Vérifier l'état du réseau
@@ -155,25 +151,23 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onClick(View v) {
-        // Lors de l'appui sur le bouton OK
-        // si case est cochée, enregistrer les données dans les préférences
-        Utils.alerter(LoginActivity.this, "click sur OK");
-        if (cbRemember.isChecked()) {
-            editor.putBoolean("remember",true);
-            editor.putString("login", edtLogin.getText().toString());
-            editor.putString("passe", edtPasse.getText().toString());
-            editor.commit();
-        } else {
-            editor.clear();
-            editor.commit();
+        if(v.getId() == R.id.login_btnOK){
+            SharedPreferences.Editor editor = this.preferences.edit();
+            if (cbRemember.isChecked()) {
+                editor.putBoolean("remember",true);
+                editor.putString("login", edtLogin.getText().toString());
+                editor.putString("passe", edtPasse.getText().toString());
+            } else {
+                editor.clear();
+            }
+            editor.apply();
+
+            // On envoie une requete HTTP
+            JSONAsyncTask jsonT = new JSONAsyncTask();
+            jsonT.execute(this.preferences.getString("urlData","http://tomnab.fr/chat-api/")+"authenticate",
+                    "user=" + edtLogin.getText().toString()
+                            + "&password=" + edtPasse.getText().toString());
         }
-
-        // On envoie une requete HTTP
-        JSONAsyncTask jsonT = new JSONAsyncTask();
-        jsonT.execute(sp.getString("urlData","http://tomnab.fr/chat-api/")+"authenticate",
-                        "user=" + edtLogin.getText().toString()
-                        + "&password=" + edtPasse.getText().toString());
-
     }
 
     // Afficher les éléments du menu
