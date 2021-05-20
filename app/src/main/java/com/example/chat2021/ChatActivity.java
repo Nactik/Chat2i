@@ -135,6 +135,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             this.adapter.addMessage(response);
             this.adapter.notifyDataSetChanged();
             this.rv.smoothScrollToPosition(this.adapter.getItemCount() - 1);
+            this.inputMessage.getEditText().setText("");
         };
     }
 
