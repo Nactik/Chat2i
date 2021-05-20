@@ -21,7 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:background="@color/colorPrimary"
+        android:background="@drawable/bg_message"
         android:gravity="center|left"
         android:minWidth="190dp"
         android:minHeight="64dp"
