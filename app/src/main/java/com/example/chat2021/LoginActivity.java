@@ -2,11 +2,10 @@ package com.example.chat2021;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -15,24 +14,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -41,80 +31,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private EditText edtPasse;
     private CheckBox cbRemember;
     private Button btnOK;
-
-    class JSONAsyncTask extends AsyncTask<String, Void, String> {
-        // Params, Progress, Result
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            Log.i(Utils.CAT,"onPreExecute");
-        }
-
-        @Override
-        protected String doInBackground(String... qs) {
-            // String... : ellipse
-            // Lors de l'appel, on fournit les arguments à la suite, séparés par des virgules
-            // On récupère ces arguments dans un tableau
-            // pas d'interaction avec l'UI Thread ici
-            Log.i(Utils.CAT,"doInBackground");
-            Log.i(Utils.CAT,qs[0]);
-            Log.i(Utils.CAT,qs[1]);
-            String result = Utils.requete(qs[0], qs[1]);
-            Log.i(Utils.CAT,result);
-            String hash = "";
-            //String hash="4e28dafe87d65cca1482d21e76c61a06";
-
-            // TODO : ne traite pas les erreurs de connexion !
-
-            try {
-
-                JSONObject obR = new JSONObject(result);
-                hash = obR.getString("hash");
-
-                /*
-                    String res = "{\"promo\":\"2020-2021\",\"enseignants\":[{\"prenom\":\"Mohamed\",\"nom\":\"Boukadir\"},{\"prenom\":\"Thomas\",\"nom\":\"Bourdeaud'huy\"}]}";
-                    JSONObject ob = new JSONObject(res);
-                    String promo = ob.getString("promo");
-                    JSONArray profs = ob.getJSONArray("enseignants");
-                    JSONObject tom = profs.getJSONObject(1);
-                    String prenom = tom.getString("prenom");
-                    Log.i(Utils.CAT,"promo:" + promo + " prenom:" + prenom);
-
-                    Gson gson = new GsonBuilder()
-                            .serializeNulls()
-                            .disableHtmlEscaping()
-                            .setPrettyPrinting()
-                            .create();
-
-                    String res2 = gson.toJson(ob);
-                    Log.i(Utils.CAT,"chaine recue:" + res);
-                    Log.i(Utils.CAT,"chaine avec gson:" + res2);
-
-                    Promo unePromo = gson.fromJson(res,Promo.class);
-                    Log.i(Utils.CAT,unePromo.toString());
-                */
-
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return hash;
-        }
-
-        protected void onPostExecute(String hash) {
-            Log.i(Utils.CAT,"onPostExecute");
-            Log.i(Utils.CAT,hash);
-            Utils.alerter(LoginActivity.this, hash);
-
-
-            Intent iVersChoixConv = new Intent(LoginActivity.this,ChoixConvActivity.class);
-            Bundle bdl = new Bundle();
-            bdl.putString("hash",hash);
-            iVersChoixConv.putExtras(bdl);
-            startActivity(iVersChoixConv);
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,12 +78,46 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             }
             editor.apply();
 
-            // On envoie une requete HTTP
-            JSONAsyncTask jsonT = new JSONAsyncTask();
-            jsonT.execute(this.preferences.getString("urlData","http://tomnab.fr/chat-api/")+"authenticate",
-                    "user=" + edtLogin.getText().toString()
-                            + "&password=" + edtPasse.getText().toString());
+            this.connection();
         }
+    }
+
+    private void connection(){
+        RequestQueueSingleton.getInstance(this.getApplicationContext()).getRequestQueue();
+
+        String url = this.preferences.getString("urlData", "http://tomnab.fr/chat-api/");
+        url += "authenticate?user="+this.edtLogin.getText()+"&password="+this.edtPasse.getText();
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.POST, url, null, createMyReqSuccessListener(), createMyReqErrorListener());
+
+        RequestQueueSingleton.getInstance(this).addToRequestQueue(jsonObjectRequest);
+    }
+
+    private Response.Listener<JSONObject> createMyReqSuccessListener() {
+        return response -> {
+            boolean success;
+            try {
+                success = response.getBoolean("success");
+                if(!success){
+                    Utils.alerter(LoginActivity.this, "Erreur de connexion");
+                } else {
+                    String hash = response.getString("hash");
+                    Intent iVersChoixConv = new Intent(LoginActivity.this, ChoixConvActivity.class);
+                    Bundle bdl = new Bundle();
+                    bdl.putString("hash",hash);
+                    iVersChoixConv.putExtras(bdl);
+                    startActivity(iVersChoixConv);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Utils.alerter(LoginActivity.this, "Erreur de connexion");
+            }
+        };
+    }
+
+    private Response.ErrorListener createMyReqErrorListener() {
+        return error -> Utils.alerter(LoginActivity.this, "Erreur de connexion" );
     }
 
     // Afficher les éléments du menu
