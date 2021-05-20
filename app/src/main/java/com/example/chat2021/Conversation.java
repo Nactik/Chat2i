@@ -3,6 +3,7 @@ package com.example.chat2021;
 import com.google.gson.annotations.SerializedName;
 
 public class Conversation {
+    @SerializedName("active")
     String id;
     @SerializedName("active")
     String isActive;
