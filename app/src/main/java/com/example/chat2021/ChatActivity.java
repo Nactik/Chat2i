@@ -89,7 +89,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         return new  ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                //TODO : Gerer les erreurs
             }
         };
     }
@@ -110,7 +110,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
         Map<String, String> headers = new HashMap<>();
         headers.put("hash", this.hash);
-        headers.put("contenu", message);
 
         GsonRequest<Message> mRequest = new GsonRequest<Message>(Request.Method.POST,
                 "http://tomnab.fr/chat-api/conversations/"+idConv+"/messages",
@@ -143,7 +142,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         return new  ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                //TODO : Gerer les erreurs
             }
         };
     }
