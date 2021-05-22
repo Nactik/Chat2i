@@ -20,6 +20,7 @@ import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONException;
@@ -156,61 +157,55 @@ public class ChoixConvActivity extends AppCompatActivity implements ConvRecycler
         RequestQueueSingleton.getInstance(this.getApplicationContext()).getRequestQueue();
 
         String url = this.preferences.getString("urlData", "http://tomnab.fr/chat-api/");
-        url += "conversations";
+        url += "conversations?theme="+convName;
 
         Map<String, String> headers = new HashMap<>();
         headers.put("hash", this.hash);
 
-//        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-//                (Request.Method.POST, url, new JSONObject(headers), successCreateNewConvListener(), errorCreateNewConvListener()){
-//
-//            @Override
-//            protected Map<String, String> getParams() throws AuthFailureError {
-//                Map<String, String> params = new HashMap<String, String>();
-//                params.put("theme", convName);
-//                return params;
-//            }
-//        };
-
-        GsonRequest<Conversation> mRequest = new GsonRequest<Conversation>(Request.Method.GET,
-                url,
-                Conversation.class,
-                headers,
-                successCreateNewConvListener(),
-                errorCreateNewConvListener()) {
-
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, successCreateNewConvListener(), errorCreateNewConvListener()){
             @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("theme", convName);
-                return params;
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return headers;
             }
         };
-        RequestQueueSingleton.getInstance(this).addToRequestQueue(mRequest);
+
+
+        RequestQueueSingleton.getInstance(this).addToRequestQueue(stringRequest);
     }
 
-    private Response.Listener<Conversation> successCreateNewConvListener() {
+    private Response.Listener<String> successCreateNewConvListener() {
         return response -> {
-                Utils.alerter(ChoixConvActivity.this, response.toString());
-//            boolean success;
-//            try {
-//                success = response.getBoolean("success");
-//                if(!success){
-//                    Utils.alerter(ChoixConvActivity.this, "Erreur lors de la création de conversation");
-//                } else {
-//                    Utils.alerter(ChoixConvActivity.this, "Conversation créée");
-//                }
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//                Utils.alerter(ChoixConvActivity.this, "Erreur lors de la création de conversation");
-//            }
+            JSONObject jsonResponse = new JSONObject();
+            try {
+                jsonResponse = new JSONObject(response);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            boolean success;
+            try {
+                success = jsonResponse.getBoolean("success");
+                if(!success){
+                    Utils.alerter(ChoixConvActivity.this, "Erreur lors de la création de conversation");
+                } else {
+                    JSONObject jsonConv = jsonResponse.getJSONObject("conversation");
+                    int id = Integer.parseInt(this.adapter.getItem(this.adapter.getItemCount()-1))+1;
+                    Conversation newConv = new Conversation(Integer.toString(id), jsonConv.getString("active"), jsonConv.getString("theme"));
+                    this.adapter.addConv(newConv);
+                    this.adapter.notifyDataSetChanged();
+                    this.rvListConv.smoothScrollToPosition(this.adapter.getItemCount() - 1);
+                    Utils.alerter(ChoixConvActivity.this, "Conversation créée");
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Utils.alerter(ChoixConvActivity.this, "Erreur lors de la création de conversation");
+            }
         };
     }
 
     private Response.ErrorListener errorCreateNewConvListener() {
         return error ->{
             Utils.alerter(ChoixConvActivity.this, "Erreur lors de la création de conversation");
-            Log.i(Utils.CAT, error.toString());
         };
     }
 
@@ -222,6 +217,8 @@ public class ChoixConvActivity extends AppCompatActivity implements ConvRecycler
 
         Map<String, String> headers = new HashMap<>();
         headers.put("hash", this.hash);
+
+        Utils.alerter(this, this.hash);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.DELETE, url, new JSONObject(headers), successDelConvListener(), errorDelConvListener());
@@ -249,7 +246,6 @@ public class ChoixConvActivity extends AppCompatActivity implements ConvRecycler
     private Response.ErrorListener errorDelConvListener() {
         return error -> {
             Utils.alerter(ChoixConvActivity.this, "Erreur lors de la suppresion de conversation");
-            Log.i(Utils.CAT, error.toString());
         };
     }
 

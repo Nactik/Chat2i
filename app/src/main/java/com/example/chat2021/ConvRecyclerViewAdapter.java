@@ -68,6 +68,10 @@ public class ConvRecyclerViewAdapter extends RecyclerView.Adapter<ConvRecyclerVi
         }
     }
 
+    public void addConv(Conversation toAdd){
+        mData.conversations.add(toAdd);
+    }
+
     // convenience method for getting data at click position
     String getItem(int position) {
         return mData.conversations.get(position).id;
