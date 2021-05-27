@@ -1,9 +1,8 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/LinearLayout1"
+    android:id="@+id/RelativeLayout2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center_horizontal|right"
     android:orientation="vertical">
 
     <TextView
@@ -18,13 +17,22 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvConv"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="694dp"
+        android:layout_below="@+id/choixConversation_titre"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="0dp" />
 
-    <Button
-        android:id="@+id/choixConversation_btnOK"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:enabled="true"
-        android:text="@string/ok" />
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="42dp"
+        android:layout_marginBottom="42dp"
+        android:contentDescription="@string/ajouter_une_conversation"
+        android:src="@drawable/ic_baseline_add_24"
+        tools:ignore="RelativeOverlap" />
 
-</LinearLayout>
+</RelativeLayout>

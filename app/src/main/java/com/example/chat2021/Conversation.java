@@ -8,6 +8,12 @@ public class Conversation {
     String isActive;
     String theme;
 
+    public Conversation(String id, String isActive, String theme){
+        this.id = id;
+        this.isActive = isActive;
+        this.theme = theme;
+    }
+
     @Override
     public String toString() {
         return "Conversation{" +

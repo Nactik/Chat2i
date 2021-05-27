@@ -2,12 +2,10 @@ package com.example.chat2021;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -90,12 +88,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         url += "authenticate?user="+this.edtLogin.getText()+"&password="+this.edtPasse.getText();
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.POST, url, null, createMyReqSuccessListener(), createMyReqErrorListener());
+                (Request.Method.POST, url, null, successLoginListener(), errorLoginListener());
 
         RequestQueueSingleton.getInstance(this).addToRequestQueue(jsonObjectRequest);
     }
 
-    private Response.Listener<JSONObject> createMyReqSuccessListener() {
+    private Response.Listener<JSONObject> successLoginListener() {
         return response -> {
             boolean success;
             try {
@@ -117,7 +115,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         };
     }
 
-    private Response.ErrorListener createMyReqErrorListener() {
+    private Response.ErrorListener errorLoginListener() {
         return error -> Utils.alerter(LoginActivity.this, "Erreur de connexion" );
     }
 

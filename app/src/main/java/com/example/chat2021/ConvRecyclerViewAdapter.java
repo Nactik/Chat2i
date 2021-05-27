@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -46,10 +47,15 @@ public class ConvRecyclerViewAdapter extends RecyclerView.Adapter<ConvRecyclerVi
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView myTextView;
+        ImageView delConvImageView;
 
         ViewHolder(View itemView) {
             super(itemView);
-            myTextView = itemView.findViewById(R.id.chatContent);
+
+            myTextView = itemView.findViewById(R.id.convName);
+            this.delConvImageView = itemView.findViewById(R.id.convDel);
+
+            this.delConvImageView.setOnClickListener(this);
             itemView.setOnClickListener(this);
         }
 
@@ -58,6 +64,10 @@ public class ConvRecyclerViewAdapter extends RecyclerView.Adapter<ConvRecyclerVi
             if (mClickListener != null)
                 mClickListener.onItemClick(view, getAdapterPosition());
         }
+    }
+
+    public void addConv(Conversation toAdd){
+        mData.conversations.add(toAdd);
     }
 
     // convenience method for getting data at click position
