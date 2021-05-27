@@ -1,15 +1,14 @@
 package com.example.chat2021;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.media.Image;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -18,12 +17,10 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
-import com.android.volley.VolleyError;
 import com.google.android.material.textfield.TextInputLayout;
 
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class ChatActivity extends AppCompatActivity implements View.OnClickListener {
@@ -35,19 +32,21 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private TextView themeView;
     private ImageButton sendbtn;
     private TextInputLayout inputMessage;
-
-
+    private SharedPreferences preferences;
+    private String url;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
         this.rv = findViewById(R.id.rvChat);
         this.rv.setLayoutManager(new LinearLayoutManager(this));
 
         Bundle bdl = this.getIntent().getExtras();
         Log.i(Utils.CAT,bdl.getString("hash"));
+        this.hash = bdl.getString("hash");
         this.idConv = bdl.getString("idConv");
         String theme = bdl.getString("theme");
 
@@ -63,17 +62,19 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         Map<String, String> headers = new HashMap<>();
         headers.put("hash", this.hash);
 
+        this.url = preferences.getString("url","http://tomnab.fr/chat-api/");
+
         GsonRequest<MessageList> mRequest = new GsonRequest<MessageList>(Request.Method.GET,
-                "http://tomnab.fr/chat-api/conversations/"+idConv+"/messages",
+                this.url+"conversations/"+idConv+"/messages",
                 MessageList.class,
                 headers,
-                createMyReqSuccessListener(),
-                createMyReqErrorListener());
+                getMessagesSuccessListener(),
+                getMessagesErrorListener());
 
         RequestQueueSingleton.getInstance(this).addToRequestQueue(mRequest);
     }
 
-    private Response.Listener<MessageList> createMyReqSuccessListener(){
+    private Response.Listener<MessageList> getMessagesSuccessListener(){
 
         return response -> {
             this.adapter = new ChatRecyclerViewAdapter(ChatActivity.this, response);
@@ -83,13 +84,8 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    private ErrorListener createMyReqErrorListener() {
-        return new  ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //TODO : Gerer les erreurs
-            }
-        };
+    private ErrorListener getMessagesErrorListener() {
+        return error -> Utils.alerter(this, "Erreur lors de la récupération des messages" );
     }
 
     @Override
@@ -111,7 +107,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         System.out.println("hash");
 
         GsonRequest<Message> mRequest = new GsonRequest<Message>(Request.Method.POST,
-                "http://tomnab.fr/chat-api/conversations/"+idConv+"/messages",
+                this.url+"conversations/"+idConv+"/messages",
                 Message.class,
                 headers,
                 createMessageSuccessListener(),
@@ -138,12 +134,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private ErrorListener createMessageErrorListener() {
-        return new  ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //TODO : Gerer les erreurs
-            }
-        };
+        return error -> Utils.alerter(this, "Erreur lors de la création de votre message" );
     }
 
 }
