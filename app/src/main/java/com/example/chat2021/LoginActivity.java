@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -14,100 +15,29 @@ import android.widget.Button;
 import android.widget.CheckBox;
 
 import com.google.android.material.textfield.TextInputLayout;
+import android.widget.EditText;
+
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.toolbox.JsonObjectRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
-    SharedPreferences sp;
-    TextInputLayout edtLogin;
-    TextInputLayout edtPasse;
-    CheckBox cbRemember;
-    Button btnOK;
-    SharedPreferences.Editor editor;
-
-    class JSONAsyncTask extends AsyncTask<String, Void, String> {
-        // Params, Progress, Result
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            Log.i(Utils.CAT,"onPreExecute");
-        }
-
-        @Override
-        protected String doInBackground(String... qs) {
-            // String... : ellipse
-            // Lors de l'appel, on fournit les arguments à la suite, séparés par des virgules
-            // On récupère ces arguments dans un tableau
-            // pas d'interaction avec l'UI Thread ici
-            Log.i(Utils.CAT,"doInBackground");
-            Log.i(Utils.CAT,qs[0]);
-            Log.i(Utils.CAT,qs[1]);
-            String result = Utils.requete(qs[0], qs[1]);
-            Log.i(Utils.CAT,result);
-            String hash = "";
-            //String hash="4e28dafe87d65cca1482d21e76c61a06";
-
-            // TODO : ne traite pas les erreurs de connexion !
-
-            try {
-
-                JSONObject obR = new JSONObject(result);
-                hash = obR.getString("hash");
-
-                /*
-                    String res = "{\"promo\":\"2020-2021\",\"enseignants\":[{\"prenom\":\"Mohamed\",\"nom\":\"Boukadir\"},{\"prenom\":\"Thomas\",\"nom\":\"Bourdeaud'huy\"}]}";
-                    JSONObject ob = new JSONObject(res);
-                    String promo = ob.getString("promo");
-                    JSONArray profs = ob.getJSONArray("enseignants");
-                    JSONObject tom = profs.getJSONObject(1);
-                    String prenom = tom.getString("prenom");
-                    Log.i(Utils.CAT,"promo:" + promo + " prenom:" + prenom);
-
-                    Gson gson = new GsonBuilder()
-                            .serializeNulls()
-                            .disableHtmlEscaping()
-                            .setPrettyPrinting()
-                            .create();
-
-                    String res2 = gson.toJson(ob);
-                    Log.i(Utils.CAT,"chaine recue:" + res);
-                    Log.i(Utils.CAT,"chaine avec gson:" + res2);
-
-                    Promo unePromo = gson.fromJson(res,Promo.class);
-                    Log.i(Utils.CAT,unePromo.toString());
-                */
-
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return hash;
-        }
-
-        protected void onPostExecute(String hash) {
-            Log.i(Utils.CAT,"onPostExecute");
-            Log.i(Utils.CAT,hash);
-            Utils.alerter(LoginActivity.this, hash);
-
-
-            Intent iVersChoixConv = new Intent(LoginActivity.this,ChoixConvActivity.class);
-            Bundle bdl = new Bundle();
-            bdl.putString("hash",hash);
-            iVersChoixConv.putExtras(bdl);
-            startActivity(iVersChoixConv);
-        }
-    }
+    private SharedPreferences preferences;
+    private EditText edtLogin;
+    private EditText edtPasse;
+    private CheckBox cbRemember;
+    private Button btnOK;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        sp = PreferenceManager.getDefaultSharedPreferences(this);
-        editor = sp.edit();
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         edtLogin = findViewById(R.id.login_edtLogin);
         edtPasse = findViewById(R.id.login_edtPasse);
@@ -121,12 +51,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onStart() {
         super.onStart();
 
-        // Lire les préférences partagées
-        if (sp.getBoolean("remember",false)) {
-            // et remplir (si nécessaire) les champs pseudo, passe, case à cocher
-            cbRemember.setChecked(true);
-            edtLogin.getEditText().setText(sp.getString("login",""));
-            edtPasse.getEditText().setText(sp.getString("passe",""));
+        if (this.preferences.getBoolean("remember",false)) {
+            this.cbRemember.setChecked(true);
+            this.edtLogin.setText(this.preferences.getString("login",""));
+            this.edtPasse.setText(this.preferences.getString("passe",""));
         }
 
         // Vérifier l'état du réseau
@@ -139,25 +67,58 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onClick(View v) {
-        // Lors de l'appui sur le bouton OK
-        // si case est cochée, enregistrer les données dans les préférences
-        Utils.alerter(LoginActivity.this, "click sur OK");
-        if (cbRemember.isChecked()) {
-            editor.putBoolean("remember",true);
-            editor.putString("login", edtLogin.getEditText().getText().toString());
-            editor.putString("passe", edtPasse.getEditText().getText().toString());
-            editor.commit();
-        } else {
-            editor.clear();
-            editor.commit();
+
+        if(v.getId() == R.id.login_btnOK){
+            SharedPreferences.Editor editor = this.preferences.edit();
+            if (cbRemember.isChecked()) {
+                editor.putBoolean("remember",true);
+                editor.putString("login", edtLogin.getText().toString());
+                editor.putString("passe", edtPasse.getText().toString());
+            } else {
+                editor.clear();
+            }
+            editor.apply();
+
+            this.connection();
         }
+    }
 
-        // On envoie une requete HTTP
-        JSONAsyncTask jsonT = new JSONAsyncTask();
-        jsonT.execute(sp.getString("urlData","http://tomnab.fr/chat-api/")+"authenticate",
-                        "user=" + edtLogin.getEditText().getText().toString()
-                        + "&password=" + edtPasse.getEditText().getText().toString());
+    private void connection(){
+        RequestQueueSingleton.getInstance(this.getApplicationContext()).getRequestQueue();
 
+        String url = this.preferences.getString("urlData", "http://tomnab.fr/chat-api/");
+        url += "authenticate?user="+this.edtLogin.getText()+"&password="+this.edtPasse.getText();
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.POST, url, null, createMyReqSuccessListener(), createMyReqErrorListener());
+
+        RequestQueueSingleton.getInstance(this).addToRequestQueue(jsonObjectRequest);
+    }
+
+    private Response.Listener<JSONObject> createMyReqSuccessListener() {
+        return response -> {
+            boolean success;
+            try {
+                success = response.getBoolean("success");
+                if(!success){
+                    Utils.alerter(LoginActivity.this, "Erreur de connexion");
+                } else {
+                    String hash = response.getString("hash");
+                    Intent iVersChoixConv = new Intent(LoginActivity.this, ChoixConvActivity.class);
+                    Bundle bdl = new Bundle();
+                    bdl.putString("hash",hash);
+                    iVersChoixConv.putExtras(bdl);
+                    startActivity(iVersChoixConv);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Utils.alerter(LoginActivity.this, "Erreur de connexion");
+            }
+        };
+    }
+
+    private Response.ErrorListener createMyReqErrorListener() {
+        return error -> Utils.alerter(LoginActivity.this, "Erreur de connexion" );
     }
 
     // Afficher les éléments du menu

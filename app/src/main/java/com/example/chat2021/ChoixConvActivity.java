@@ -1,8 +1,9 @@
 package com.example.chat2021;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
+import android.preference.PreferenceManager;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -10,58 +11,34 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-// import com.android.volley.Response;
+import com.android.volley.Request;
+import com.android.volley.Response;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ChoixConvActivity extends AppCompatActivity implements ConvRecyclerViewAdapter.ItemClickListener{
 
-    private static final String CAT = "LE4-SI";
-    APIInterface apiService;
-    String hash;
-    private ListConversation conversations;
+    private SharedPreferences preferences;
+    private RecyclerView rvListConv;
+    private String hash;
     private ConvRecyclerViewAdapter adapter;
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choix_conversation);
 
-        RecyclerView rv = findViewById(R.id.rvConv);
-        rv.setLayoutManager(new LinearLayoutManager(this));
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        this.rvListConv = findViewById(R.id.rvConv);
 
         Bundle bdl = this.getIntent().getExtras();
-        Log.i(CAT,bdl.getString("hash"));
-        hash = bdl.getString("hash");
+        this.hash = bdl.getString("hash");
 
-        apiService = APIClient.getClient().create(APIInterface.class);
-        Call<ListConversation> call1 = apiService.doGetListConversation(hash);
-        call1.enqueue(new Callback<ListConversation>() {
-            @Override
-            public void onResponse(Call<ListConversation> call, Response<ListConversation> response) {
-                ListConversation lc = response.body();
-                Log.i(CAT,lc.toString());
+        if(this.hash != null) this.setUpConvList();
+        else Utils.alerter(ChoixConvActivity.this, "Erreur lors de la récupération des informations de connexion");
 
-                adapter = new ConvRecyclerViewAdapter(ChoixConvActivity.this, lc);
-                rv.setLayoutManager(new LinearLayoutManager(ChoixConvActivity.this));
-                adapter.setClickListener(ChoixConvActivity.this);
-                rv.setAdapter(adapter);
-
-            }
-
-            @Override
-            public void onFailure(Call<ListConversation> call, Throwable t) {
-                call.cancel();
-            }
-        });
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
     }
 
     @Override
@@ -77,6 +54,48 @@ public class ChoixConvActivity extends AppCompatActivity implements ConvRecycler
 
         toChat.putExtras(bdl);
         startActivity(toChat);
+    }
+
+    /**
+     * Rempli la liste des conversations
+     */
+    private void setUpConvList(){
+        RequestQueueSingleton.getInstance(this.getApplicationContext()).getRequestQueue();
+
+        String url = this.preferences.getString("urlData", "http://tomnab.fr/chat-api/");
+        url += "conversations";
+        Map<String, String> headers = new HashMap<>();
+        headers.put("hash", this.hash);
+
+        GsonRequest<ListConversation> mRequest = new GsonRequest<>(Request.Method.GET,
+                url,
+                ListConversation.class,
+                headers,
+                createMyReqSuccessListener(),
+                createMyReqErrorListener());
+
+        RequestQueueSingleton.getInstance(this).addToRequestQueue(mRequest);
+    }
+
+    /**
+     * Réponse recu de la requete
+     * @return la reponse recue
+     */
+    private Response.Listener<ListConversation> createMyReqSuccessListener() {
+        return response -> {
+            this.adapter = new ConvRecyclerViewAdapter(ChoixConvActivity.this, response);
+            this.rvListConv.setLayoutManager(new LinearLayoutManager(ChoixConvActivity.this));
+            this.adapter.setClickListener(ChoixConvActivity.this);
+            this.rvListConv.setAdapter(adapter);
+        };
+    }
+
+    /**
+     * Gère les erreurs
+     * @return l'erreur recu
+     */
+    private Response.ErrorListener createMyReqErrorListener() {
+        return error -> Utils.alerter(ChoixConvActivity.this, "Erreur lors de la récupération des conversations" );
     }
 
 }
