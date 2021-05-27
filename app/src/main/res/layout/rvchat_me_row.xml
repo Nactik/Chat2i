@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
         android:gravity="center|right"
-        android:text="Me"
+        android:text="Moi"
         android:layout_marginBottom="5dp"/>
 
     <TextView
@@ -28,6 +28,7 @@
         android:minWidth="190dp"
         android:minHeight="64dp"
         android:paddingLeft="15dp"
+        android:paddingRight="15dp"
         android:text="Small Text"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@color/blanc" />

@@ -26,6 +26,7 @@
         android:minWidth="190dp"
         android:minHeight="64dp"
         android:paddingLeft="15dp"
+        android:paddingRight="15dp"
         android:text="Small Text"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@color/blanc" />
