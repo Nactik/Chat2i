@@ -165,49 +165,37 @@ public class ChoixConvActivity extends AppCompatActivity implements ConvRecycler
         RequestQueueSingleton.getInstance(this.getApplicationContext()).getRequestQueue();
 
         String url = this.preferences.getString("urlData", "http://tomnab.fr/chat-api/");
-        url += "conversations?theme="+convName;
+        url += "conversations";
 
         Map<String, String> headers = new HashMap<>();
         headers.put("hash", this.hash);
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, successCreateNewConvListener(), errorCreateNewConvListener()){
+        GsonRequest<Conversation> mRequest = new GsonRequest<Conversation>(Request.Method.POST,
+                url,
+                Conversation.class,
+                headers,
+                successCreateNewConvListener(),
+                errorCreateNewConvListener()){
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                return headers;
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("theme", convName);
+                return params;
             }
         };
 
 
-        RequestQueueSingleton.getInstance(this).addToRequestQueue(stringRequest);
+        RequestQueueSingleton.getInstance(this).addToRequestQueue(mRequest);
     }
 
-    private Response.Listener<String> successCreateNewConvListener() {
+    private Response.Listener<Conversation> successCreateNewConvListener() {
         return response -> {
-            JSONObject jsonResponse = new JSONObject();
-            try {
-                jsonResponse = new JSONObject(response);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            boolean success;
-            try {
-                success = jsonResponse.getBoolean("success");
-                if(!success){
-                    Utils.alerter(ChoixConvActivity.this, "Erreur lors de la création de conversation");
-                } else {
-                    JSONObject jsonConv = jsonResponse.getJSONObject("conversation");
-                    int id = Integer.parseInt(this.adapter.getId(this.adapter.getItemCount()-1))+1;
-                    Conversation newConv = new Conversation(Integer.toString(id), jsonConv.getString("active"), jsonConv.getString("theme"));
-                    this.adapter.addConv(newConv);
-                    this.adapter.notifyDataSetChanged();
-                    this.rvListConv.smoothScrollToPosition(this.adapter.getItemCount() - 1);
-                    Utils.alerter(ChoixConvActivity.this, "Conversation créée");
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Utils.alerter(ChoixConvActivity.this, "Erreur lors de la création de conversation");
-            }
+            int id = Integer.parseInt(this.adapter.getId(this.adapter.getItemCount()-1))+1;
+            response.id = Integer.toString(id);
+            this.adapter.addConv(response);
+            this.adapter.notifyDataSetChanged();
+            this.rvListConv.smoothScrollToPosition(this.adapter.getItemCount() - 1);
+            Utils.alerter(ChoixConvActivity.this, "Conversation créée");
         };
     }
 
