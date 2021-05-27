@@ -21,7 +21,6 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.VolleyError;
 import com.google.android.material.textfield.TextInputLayout;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.List;
@@ -49,7 +48,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
         Bundle bdl = this.getIntent().getExtras();
         Log.i(Utils.CAT,bdl.getString("hash"));
-        this.hash = bdl.getString("hash");
         this.idConv = bdl.getString("idConv");
         String theme = bdl.getString("theme");
 
@@ -110,6 +108,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
         Map<String, String> headers = new HashMap<>();
         headers.put("hash", this.hash);
+        System.out.println("hash");
 
         GsonRequest<Message> mRequest = new GsonRequest<Message>(Request.Method.POST,
                 "http://tomnab.fr/chat-api/conversations/"+idConv+"/messages",
@@ -117,7 +116,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 headers,
                 createMessageSuccessListener(),
                 createMessageErrorListener()){
-            @NotNull
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();

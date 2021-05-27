@@ -25,8 +25,8 @@ import org.json.JSONObject;
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
     private SharedPreferences preferences;
-    private EditText edtLogin;
-    private EditText edtPasse;
+    private TextInputLayout edtLogin;
+    private TextInputLayout edtPasse;
     private CheckBox cbRemember;
     private Button btnOK;
 
@@ -51,8 +51,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         if (this.preferences.getBoolean("remember",false)) {
             this.cbRemember.setChecked(true);
-            this.edtLogin.setText(this.preferences.getString("login",""));
-            this.edtPasse.setText(this.preferences.getString("passe",""));
+            this.edtLogin.getEditText().setText(this.preferences.getString("login",""));
+            this.edtPasse.getEditText().setText(this.preferences.getString("passe",""));
         }
 
         // Vérifier l'état du réseau
@@ -70,8 +70,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             SharedPreferences.Editor editor = this.preferences.edit();
             if (cbRemember.isChecked()) {
                 editor.putBoolean("remember",true);
-                editor.putString("login", edtLogin.getText().toString());
-                editor.putString("passe", edtPasse.getText().toString());
+                editor.putString("login", edtLogin.getEditText().getText().toString());
+                editor.putString("passe", edtPasse.getEditText().getText().toString());
             } else {
                 editor.clear();
             }
@@ -85,7 +85,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         RequestQueueSingleton.getInstance(this.getApplicationContext()).getRequestQueue();
 
         String url = this.preferences.getString("urlData", "http://tomnab.fr/chat-api/");
-        url += "authenticate?user="+this.edtLogin.getText()+"&password="+this.edtPasse.getText();
+        url += "authenticate?user="+this.edtLogin.getEditText().getText()+"&password="+this.edtPasse.getEditText().getText();
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.POST, url, null, successLoginListener(), errorLoginListener());
