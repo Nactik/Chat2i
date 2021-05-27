@@ -104,7 +104,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
         Map<String, String> headers = new HashMap<>();
         headers.put("hash", this.hash);
-        System.out.println("hash");
 
         GsonRequest<Message> mRequest = new GsonRequest<Message>(Request.Method.POST,
                 this.url+"conversations/"+idConv+"/messages",
