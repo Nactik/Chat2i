@@ -1,6 +1,8 @@
 package com.example.chat2021;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +17,7 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
     private MessageList mData;
     private LayoutInflater mInflater;
+    private String pseudo;
 
     // stores and recycles views as they are scrolled off screen
     public static class ViewHolderMessage extends RecyclerView.ViewHolder{
@@ -43,6 +46,9 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     ChatRecyclerViewAdapter(Context context, MessageList data) {
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
+
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        this.pseudo = sp.getString("login","user");
     }
 
     // inflates the row layout from xml when needed
@@ -81,7 +87,7 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
     @Override
     public int getItemViewType(int position) {
-        if(mData.messages.get(position).author.equals("tom")) //TODO : Changer en récuperant notre pseudo dans les sharedPrefs
+        if(mData.messages.get(position).author.equals(this.pseudo))
             return 0;
         else
             return 1;
@@ -96,6 +102,5 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
     public void addMessage(Message toAdd){
         mData.messages.add(toAdd);
-
     }
 }
